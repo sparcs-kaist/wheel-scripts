@@ -114,10 +114,3 @@ rm /usr/lib/python3.12/EXTERNALLY-MANAGED
 curl https://bootstrap.pypa.io/get-pip.py | python3
 python3 -m pip install -U pip wheel setuptools
 python3 -m pip install -U certbot certbot-nginx
-
-echo "Setup completed successfully! System will reboot in 5 seconds..."
-for i in {5..1}; do
-  echo "Rebooting in $i..."
-  sleep 1
-done
-reboot
