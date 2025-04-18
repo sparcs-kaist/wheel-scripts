@@ -17,6 +17,11 @@ print_usage_and_exit() {
   exit 1
 }
 
+# Check if no arguments provided
+if [[ $# -eq 0 ]]; then
+  print_usage_and_exit
+fi
+
 # Parse arguments
 for arg in "$@"; do
   case $arg in
@@ -84,7 +89,7 @@ fi
 
 # Variables
 CLOUD_IMAGE_URL="https://cloud-images.ubuntu.com/releases/${UBUNTU_VERSION}/release/ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
-IMAGE_NAME="ubuntu-${UBUNTU_VERSION}-cloudimg.qcow2"
+IMAGE_NAME="ubuntu-${UBUNTU_VERSION//./}-cloudimg.qcow2"
 VM_ID="$VM_ID"
 VM_NAME="template-ubuntu-${UBUNTU_VERSION}-VM"
 VM_STORAGE=$(hostname)
