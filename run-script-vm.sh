@@ -33,6 +33,9 @@ if [ "$2" = "--docker" ]; then
     DOCKER_FLAG="-- --docker"
 fi
 
+# Clear the screen
+clear
+
 # Show the configuration
 echo "=== Script Configuration ==="
 echo "----------------------------------------"
