@@ -5,11 +5,11 @@ print_usage_and_exit() {
   echo "========================================"
   echo "           VM Creation Script           "
   echo "========================================"
-  echo "Usage  : $0 --version=<22.04|24.10> --id=<vm_id> --bridge=<bridge_interface>"
-  echo "Example: $0 --version=24.10 --id=100 --bridge=vInternal"
+  echo "Usage  : $0 --version=<22.04|24.04> --id=<vm_id> --bridge=<bridge_interface>"
+  echo "Example: $0 --version=24.04 --id=100 --bridge=vInternal"
   echo "----------------------------------------"
   echo "Arguments:"
-  echo "  --version=<22.04|24.10> : Ubuntu version (22.04 or 24.10)"
+  echo "  --version=<22.04|24.04> : Ubuntu version (22.04 or 24.04)"
   echo "  --id=<vm_id>            : Unique VM ID (numeric)"
   echo "  --bridge=<bridge>       : Network bridge interface"
   echo "  --help                  : Display this help message"
@@ -27,8 +27,8 @@ for arg in "$@"; do
   case $arg in
     --version=*)
       UBUNTU_VERSION="${arg#*=}"
-      if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.10" ]]; then
-        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.10."
+      if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
+        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.04."
         exit 1
       fi
       ;;
