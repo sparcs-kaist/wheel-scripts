@@ -5,11 +5,12 @@ print_usage_and_exit() {
   echo "========================================"
   echo "           VM Creation Script           "
   echo "========================================"
-  echo "Usage  : $0 --version=<22.04|24.04> --id=<vm_id> --bridge=<bridge_interface>"
-  echo "Example: $0 --version=24.04 --id=100 --bridge=vInternal"
+  echo "Usage  : $0 --distro=<ubuntu|debian> --version=<22.04|24.10|10|12> --id=<vm_id> --bridge=<bridge_interface>"
+  echo "Example: $0 --distro=debian --version=12 --id=100 --bridge=vInternal"
   echo "----------------------------------------"
   echo "Arguments:"
-  echo "  --version=<22.04|24.04> : Ubuntu version (22.04 or 24.04)"
+  echo "  --distro=<ubuntu|debian> : Distribution (ubuntu or debian)"
+  echo "  --version=<22.04|24.10|10|12> : Version (Ubuntu: 22.04, 24.10; Debian: 10, 12)"
   echo "  --id=<vm_id>            : Unique VM ID (numeric)"
   echo "  --bridge=<bridge>       : Network bridge interface"
   echo "  --help                  : Display this help message"
@@ -25,10 +26,20 @@ fi
 # Parse arguments
 for arg in "$@"; do
   case $arg in
+    --distro=*)
+      DISTRO="${arg#*=}"
+      if [[ "$DISTRO" != "ubuntu" && "$DISTRO" != "debian" ]]; then
+        echo "Error: Invalid distro. Allowed values are ubuntu or debian."
+        exit 1
+      fi
+      ;;
     --version=*)
-      UBUNTU_VERSION="${arg#*=}"
-      if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
-        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.04."
+      VERSION="${arg#*=}"
+      if [[ "$DISTRO" == "ubuntu" && "$VERSION" != "22.04" && "$VERSION" != "24.10" ]]; then
+        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.10."
+        exit 1
+      elif [[ "$DISTRO" == "debian" && "$VERSION" != "10" && "$VERSION" != "12" ]]; then
+        echo "Error: Invalid Debian version. Allowed values are 10 or 12."
         exit 1
       fi
       ;;
@@ -55,8 +66,12 @@ done
 # Validate required arguments
 missing_args=()
 
-if [[ -z "$UBUNTU_VERSION" ]]; then
-  missing_args+=("UBUNTU_VERSION")
+if [[ -z "$DISTRO" ]]; then
+  missing_args+=("DISTRO")
+fi
+
+if [[ -z "$VERSION" ]]; then
+  missing_args+=("VERSION")
 fi
 
 if [[ -z "$VM_ID" ]]; then
@@ -88,10 +103,23 @@ if ! command -v virt-customize &> /dev/null; then
 fi
 
 # Variables
-CLOUD_IMAGE_URL="https://cloud-images.ubuntu.com/releases/${UBUNTU_VERSION}/release/ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
-IMAGE_NAME="ubuntu-${UBUNTU_VERSION//./}-cloudimg.qcow2"
-VM_ID="$VM_ID"
-VM_NAME="template-ubuntu-${UBUNTU_VERSION}-VM"
+if [[ "$DISTRO" == "ubuntu" ]]; then
+  CLOUD_IMAGE_URL="https://cloud-images.ubuntu.com/releases/${VERSION}/release/ubuntu-${VERSION}-server-cloudimg-amd64.img"
+  IMAGE_NAME="ubuntu-${VERSION//./}-cloudimg.qcow2"
+  VM_NAME="template-ubuntu-${VERSION}-VM"
+elif [[ "$DISTRO" == "debian" ]]; then
+  if [[ "$VERSION" == "10" ]]; then
+    CLOUD_IMAGE_URL="https://cdimage.debian.org/cdimage/cloud/buster/latest/debian-${VERSION}-genericcloud-amd64.qcow2"
+  elif [[ "$VERSION" == "12" ]]; then
+    CLOUD_IMAGE_URL="https://cdimage.debian.org/cdimage/cloud/bookworm/latest/debian-${VERSION}-genericcloud-amd64.qcow2"
+  else
+    echo "Error: Unsupported Debian version."
+    exit 1
+  fi
+  IMAGE_NAME="debian-${VERSION}-cloudimg.qcow2"
+  VM_NAME="template-debian-${VERSION}-VM"
+fi
+
 VM_STORAGE=$(hostname)
 EFI_STORAGE="local"
 MEMORY=2048
@@ -111,14 +139,15 @@ echo "VM Bridge Interface: ${BRIDGE_INTERFACE}"
 echo "Memory             : ${MEMORY} MB"
 echo "Cores              : ${CORES}"
 echo "Disk Size          : ${DISK_SIZE}"
-echo "Ubuntu Version     : ${UBUNTU_VERSION}"
+echo "Distro             : ${DISTRO}"
+echo "Version            : ${VERSION}"
 echo "Cloud Image URL    : ${CLOUD_IMAGE_URL}"
 echo "Image Name         : ${IMAGE_NAME}"
 echo "EFI Storage        : ${EFI_STORAGE}"
 echo "----------------------------------------"
 
-# Download Ubuntu Cloud Image
-echo "=== Downloading Ubuntu Cloud Image ==="
+# Download Cloud Image
+echo "=== Downloading Cloud Image ==="
 wget -O ${IMAGE_NAME} ${CLOUD_IMAGE_URL}
 
 # Customize the image
@@ -127,7 +156,7 @@ virt-customize -a ${IMAGE_NAME} --install qemu-guest-agent
 
 # Import the image to Proxmox
 echo "=== Importing image to Proxmox storage... ==="
-qm create ${VM_ID} --name ${VM_NAME} --memory ${MEMORY} --cores ${CORES} --bios ovmf
+qm create ${VM_ID} --name ${VM_NAME} --memory ${MEMORY} --cores ${CORES}
 qm importdisk ${VM_ID} ${IMAGE_NAME} ${VM_STORAGE}
 qm set ${VM_ID} --scsihw virtio-scsi-pci --scsi0 "${VM_STORAGE}:${VM_ID}/vm-${VM_ID}-disk-0.raw"
 qm set ${VM_ID} --efidisk0 ${EFI_STORAGE}:0,format=qcow2
