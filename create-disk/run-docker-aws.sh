@@ -139,7 +139,7 @@ sudo kpartx -d $IMAGE_NAME_BASE.raw
 #cp $IMAGE_NAME_BASE-custom$VFIO_CUSTOM_IMAGE-$(date "+%Y%m%d")-0.raw ../$IMAGE_NAME_BASE-custom$VFIO_CUSTOM_IMAGE-$(date "+%Y%m%d")-0.raw
 # qemu-img convert -p -f raw -O qcow2 $IMAGE_NAME_BASE-custom$VFIO_CUSTOM_IMAGE-$(date "+%Y%m%d")-0.raw $IMAGE_NAME_BASE-custom$VFIO_CUSTOM_IMAGE-$(date "+%Y%m%d")-0.qcow2
 
-qemu-img convert -p -f raw -O qcow2 $IMAGE_NAME_BASE.raw $IMAGE_NAME_BASE-$(date "+%Y%m%d-%H%M%S").qcow2 
+qemu-img convert -p -f raw -O qcow2 $IMAGE_NAME_BASE.raw $IMAGE_NAME_BASE-docker-aws-$(date "+%Y%m%d-%H%M%S").qcow2 
 
 rm -rf script jammy-server-cloudimg-amd64.img jammy-server-cloudimg-amd64.raw mnt
 popd || exit
