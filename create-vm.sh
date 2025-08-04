@@ -5,12 +5,12 @@ print_usage_and_exit() {
   echo "========================================"
   echo "           VM Creation Script           "
   echo "========================================"
-  echo "Usage  : $0 --distro=<ubuntu|debian> --version=<22.04|24.10|10|12> --id=<vm_id> --bridge=<bridge_interface>"
+  echo "Usage  : $0 --distro=<ubuntu|debian> --version=<22.04|24.04|10|12> --id=<vm_id> --bridge=<bridge_interface>"
   echo "Example: $0 --distro=debian --version=12 --id=100 --bridge=vInternal"
   echo "----------------------------------------"
   echo "Arguments:"
   echo "  --distro=<ubuntu|debian> : Distribution (ubuntu or debian)"
-  echo "  --version=<22.04|24.10|10|12> : Version (Ubuntu: 22.04, 24.10; Debian: 10, 12)"
+  echo "  --version=<22.04|24.04|10|12> : Version (Ubuntu: 22.04, 24.04; Debian: 10, 12)"
   echo "  --id=<vm_id>            : Unique VM ID (numeric)"
   echo "  --bridge=<bridge>       : Network bridge interface"
   echo "  --help                  : Display this help message"
@@ -35,8 +35,8 @@ for arg in "$@"; do
       ;;
     --version=*)
       VERSION="${arg#*=}"
-      if [[ "$DISTRO" == "ubuntu" && "$VERSION" != "22.04" && "$VERSION" != "24.10" ]]; then
-        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.10."
+      if [[ "$DISTRO" == "ubuntu" && "$VERSION" != "22.04" && "$VERSION" != "24.04" ]]; then
+        echo "Error: Invalid Ubuntu version. Allowed values are 22.04 or 24.04."
         exit 1
       elif [[ "$DISTRO" == "debian" && "$VERSION" != "10" && "$VERSION" != "12" ]]; then
         echo "Error: Invalid Debian version. Allowed values are 10 or 12."
