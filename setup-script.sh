@@ -61,13 +61,13 @@ echo "=== Updating APT Sources ==="
 if [ -d /etc/apt/sources.list.d ]; then
   for file in /etc/apt/sources.list.d/*; do
     if grep -q "archive.ubuntu.com" "$file"; then
-      sed -i "s/archive.ubuntu.com/ftp.kaist.ac.kr/g" "$file"
+      sed -i "s/archive.ubuntu.com/ftp-cache.sparcs.org/g" "$file"
     fi
   done
 fi
 # if /etc/apt/sources.list is exists, then replace the source
 if [ -f /etc/apt/sources.list ]; then
-  sed -i "s/archive.ubuntu.com/ftp.kaist.ac.kr/g" /etc/apt/sources.list
+  sed -i "s/archive.ubuntu.com/ftp-cache.sparcs.org/g" /etc/apt/sources.list
 fi
 
 # Install basic packages
